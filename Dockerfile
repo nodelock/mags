@@ -2,14 +2,24 @@ FROM node:alpine3.22
 
 WORKDIR /tmp
 
-COPY index.js index.html package.json ./
+COPY package.json /tmp/package.json
+COPY index.js /tmp/index.js
+COPY index.html /tmp/index.html
 
-EXPOSE 3000/tcp
+RUN apk add --no-cache \
+      openssl \
+      curl \
+      gcompat \
+      iproute2 \
+      coreutils \
+      bash \
+    && chmod +x /tmp/index.js \
+    && npm install \
+    && test -f /tmp/index.js \
+    && test -f /tmp/index.html \
+    && test -f /tmp/package.json \
+    && ls -la /tmp
 
-RUN apk update && apk upgrade &&\
-    apk add --no-cache openssl curl gcompat iproute2 coreutils &&\
-    apk add --no-cache bash &&\
-    chmod +x index.js &&\
-    npm install
+EXPOSE 3000
 
 CMD ["node", "index.js"]
