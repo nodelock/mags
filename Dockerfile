@@ -1,10 +1,11 @@
 FROM node:alpine3.22
 
-WORKDIR /tmp
+WORKDIR /app
 
-COPY package.json /tmp/package.json
-COPY index.js /tmp/index.js
-COPY index.html /tmp/index.html
+COPY package.json /app/package.json
+COPY index.js /app/index.js
+COPY index.html /app/index.html
+COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 
 RUN apk add --no-cache \
       openssl \
@@ -13,13 +14,12 @@ RUN apk add --no-cache \
       iproute2 \
       coreutils \
       bash \
-    && chmod +x /tmp/index.js \
+    && chmod +x /usr/local/bin/docker-entrypoint.sh /app/index.js \
+    && cd /app \
     && npm install \
-    && test -f /tmp/index.js \
-    && test -f /tmp/index.html \
-    && test -f /tmp/package.json \
-    && ls -la /tmp
+    && test -f /app/index.js \
+    && test -f /app/index.html
 
 EXPOSE 3000
 
-CMD ["node", "index.js"]
+CMD ["node", "/app/index.js"]
